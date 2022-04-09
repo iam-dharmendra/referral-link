@@ -161,7 +161,7 @@
         <div class="card">
             <div class="sign">
                 Total CA referals
-                <h5> Total Number of CA Referals = {{calen}}</h5>
+                <h5> Total Number of CA  = {{calen}}</h5>
             </div>
         </div>
 
@@ -175,15 +175,17 @@
             {% for i in caobj %}
             <h4>
                 Name:{{i.name}} <br>Email: {{i}} <br>Validity :{{i.payment_due_date}}<br>
-                percentage:{{i.percentage}}%
+                
             </h4>
+            <a href="{% url 'prometers_by_ca' i.id %}">my referals</a>
+            
             {% endfor %}
         </div>
         {% endif %}
 
 
         <!-- This card is for Promoter -->
-        {% if probj %}
+        <!-- {% if probj %}
         <div class="card">
             <div class="sign">
                 Total Promoter referals
@@ -195,7 +197,7 @@
             </h4>
             {% endfor %}
         </div>
-        {% endif %}
+        {% endif %} -->
 
     </div>
     <!-- this is the script for copying the referal link -->

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .box{
+            justify-content: center;
+            /* border: 1px solid red; */
+            padding: 10px;
+            margin: 20px;
+            box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
+        }
+        p{
+            /* box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px; */
+            /* border: 1px solid rgb(30, 255, 0); */
+            padding: 10px;
+            justify-content: center;
+            margin: 20px;
+           
+
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        you earned in this month
+        <p>{{ Month_Amount}}</p>
+    </div>
+
+    <div class="box">
+        welcome<br>
+        name:{{object.CA.name}}<br>
+        email:{{object.CA}}<br>
+        this _month_earn:{{object.monthlyAmount}}<br>
+        my_pending_amount:{{object.pendingAmount}}<br> 
+       
+        till total you earned:{{object.CA.totalAmount}}
+        <br>
+        recieved_payment status:
+        {% if object.isPaymentRecieved%}
+          <span style="background-color:green;">  True</span>
+        {% else %}
+        <span style="background-color:red;">  False</span>
+        {% endif%}
+        
+    </div>
+    
+</body>
+</html>

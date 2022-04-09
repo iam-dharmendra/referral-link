@@ -67,7 +67,7 @@ class Offerings(models.Model):
     
 
     def __str__(self):
-        return self.CA.email
+        return self.tierName
 
 
 

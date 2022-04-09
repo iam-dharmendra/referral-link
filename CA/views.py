@@ -137,6 +137,7 @@ def amountCalculation(request):
             per=offer1.percentage
             tier_selection='tier1'
             noReferals_paid=offer1.noReferals_paid
+            Month_Amount=offer1.monthlyAmount
           
 
         elif  nameMsg.totalNoOfReferrals >= offer2.tierNo and  nameMsg.totalNoOfReferrals <= offer3.tierNo - 1:  
@@ -144,69 +145,63 @@ def amountCalculation(request):
             per=offer2.percentage 
             tier_selection='tier2'
             noReferals_paid=offer2.noReferals_paid
+            Month_Amount=offer2.monthlyAmount
            
         elif nameMsg.totalNoOfReferrals >= offer3.tierNo :
             print('tier1')
             per=offer3.percentage
             tier_selection='tier3'
             noReferals_paid=offer3.noReferals_paid
-           
-        amountHasToBePaid = 0
+            Month_Amount=offer3.monthlyAmount
+            
         
+        tier_selection=tier_selection[4]
         count=0
+
         for i in range(noReferals_paid,len(obj)):
             if obj[i].ispaid == True:
-                amountHasToBePaid += ((10000*per)/100)
+                Month_Amount += ((10000*per)/100)
                 count+=1
             else:
                 print(f"{i} user has not paid yet")
         
-        
-        tier_selection=tier_selection[4]
-        print(tier_selection) 
 
         if tier_selection=='1':
-            offer1.monthlyAmount=amountHasToBePaid
-            offer1.noReferals_paid+=count
+            object=offer1
+            offer1.monthlyAmount=Month_Amount
             if offer1.isPaymentRecieved==False:
                 offer1.pendingAmount=offer1.monthlyAmount
+                offer1.noReferals_paid+=count
             else:
                 offer1.pendingAmount=0
-                # offer1.isPaymentRecieved=datetime.now()
+               
             offer1.save()
 
         elif tier_selection=='2':
-            offer2.monthlyAmount=amountHasToBePaid
-            offer2.noReferals_paid+=count
+            object=offer2
+            offer2.monthlyAmount=Month_Amount
            
             if offer2.isPaymentRecieved==False:
                 offer2.pendingAmount=offer2.monthlyAmount
+                offer2.noReferals_paid+=count
             else:
                 offer2.pendingAmount=0
-                # offer2.isPaymentRecieved=datetime.now()
+                
             offer2.save()
 
         else :
-            offer3.monthlyAmount=amountHasToBePaid
-            offer3.noReferals_paid+=count
+            offer3.monthlyAmount=Month_Amount
+            object=offer3
             if offer3.isPaymentRecieved==False:
                 offer3.pendingAmount=offer3.monthlyAmount
+                offer3.noReferals_paid+=count
             else:
                 offer3.pendingAmount=0
                 # offer3.isPaymentRecieved=datetime.now()
-            offer3.save()
-
-
-
-        total=nameMsg.totalAmount
-        print(total,amountHasToBePaid)
-
-        total+=amountHasToBePaid
-        CasignUp.objects.filter(email = request.session['email']).update(totalAmount=total)
+            
         
-        print(amountHasToBePaid)
-        return HttpResponse(amountHasToBePaid)
-    return HttpResponse('amount')   
+        return render(request,'myearning.html',{'Month_Amount':Month_Amount,'object':object})  
+    return render(request,'myearning.html')   
        
                 
 
@@ -335,26 +330,33 @@ def PRtimeout(request):
 
 # Dashboard for main Host
 def MAINDASH(request):
-    li = []
+    total_no = []
+    promoter_object_by_CA=[]
     caobj =  CasignUp.objects.all()
-    probj =  PrsignUp.objects.all()
+    # probj =  PrsignUp.objects.all()
     for i in caobj:
         caRefCount = PrsignUp.objects.filter(recommend_by = i.email)
-        li.append(len(caRefCount))
+        promoter_object_by_CA.append(caRefCount)
+        total_no.append(len(caRefCount))
+
+    
+
     link  = 'http://127.0.0.1:8000/casignup/j75mnhd67v4m18r'
     
     context = {
         'caobj': caobj,
-        'probj': probj,        
-        'calen': len(caobj),
-        'prlen': len(probj),
+        'promoter_object_by_CA':promoter_object_by_CA,
+        # 'probj': probj,        
+        # 'calen': len(caobj),
+        # 'prlen': len(probj),
         'link' : link,
-        'li' : li,
+        'total_no' : total_no,
     }
     return render(request, 'maindash.html', context)
 
 
 def payment(request):
+
     if 'email' in request.session:
         nameMsg = CasignUp.objects.get(email = request.session['email'])
         offer1=Offerings.objects.filter(CA=nameMsg,tierName='tier1').last()
@@ -381,12 +383,21 @@ def payment(request):
         print(tier_selection) 
         if tier_selection=='1':
             offer1.paymentRecievedDate=datetime.now()
+            total=nameMsg.totalAmount
+            total+=offer1.monthlyAmount
+            CasignUp.objects.filter(email = request.session['email']).update(totalAmount=total)
+
             offer1.isPaymentRecieved=True
             REF=offer1.noReferals_paid
             offer1.save()
             Offerings.objects.create(CA=nameMsg,tierNo=offer1.tierNo,percentage=offer1.percentage,tierName='tier1',noReferals_paid=REF,joiningDate=datetime.now())
         elif tier_selection=='2':
             offer2.paymentRecievedDate=datetime.now()
+
+            total=nameMsg.totalAmount
+            total+=offer2.monthlyAmount
+            CasignUp.objects.filter(email = request.session['email']).update(totalAmount=total)
+            
             offer2.isPaymentRecieved=True
             REF=offer2.noReferals_paid
             offer2.save()
@@ -394,15 +405,34 @@ def payment(request):
     
         else :
             offer3.paymentRecievedDate=datetime.now()
+            total=nameMsg.totalAmount
+            total+=offer1.monthlyAmount
+            
+            CasignUp.objects.filter(email = request.session['email']).update(totalAmount=total)
+
+            
             offer3.isPaymentRecieved=True
             REF=offer3.noReferals_paid
             offer3.save()
             Offerings.objects.create(CA=nameMsg,tierNo=offer3.tierNo,percentage=offer3.percentage,tierName='tier3',noReferals_paid=REF,joiningDate=datetime.now())
 
-
     return HttpResponse('paid succesfully')         
 
 
 
+
+def second_payment_function(request,id):
+    pass
+
+
+
+def prometers_by_ca(request,id):
+    ca=CasignUp.objects.get(id=id)
+    promters=PrsignUp.objects.filter(recommend_by=ca.email)
+
+    return render(request,'promoter.html',{'prlist':promters,'total':len(promters)})
+
+
+    
 
 

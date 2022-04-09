@@ -14,5 +14,6 @@ urlpatterns = [
             path('prdash/', views.PRdashboard, name='PRDASHBOARD'),
             path('amountCalculation/', views.amountCalculation, name='amountCalculation'),
             path('payment/', views.payment, name='payment'),
+            path('prometers_by_ca/<int:id>', views.prometers_by_ca, name='prometers_by_ca'),
 
 ]
